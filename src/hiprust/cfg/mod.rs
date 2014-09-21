@@ -7,13 +7,25 @@ pub struct Config {
     api_host: String,
 }
 
-fn from_string(s: &str) -> Config {
-    return json::decode::<Config>(s).unwrap();
+// XXX(scode): I am not sure how one idiomatically propagates errors without leaking implementation
+// detail.
 
+#[must_use]
+fn from_string(s: &str) -> Result<Config, String> {
+    let decoded = json::decode::<Config>(s);
+    match decoded {
+        Ok(x) => Ok(x),
+        Err(msg) => Err(format!("decoding json failed: {}", msg))
+    }
 }
 
-fn from_file(p: &Path) -> Config {
-    from_string(io::BufferedReader::new(io::File::open(p)).read_to_string().unwrap().as_slice())
+#[must_use]
+fn from_file(p: &Path) -> Result<Config, String> {
+    let s = io::BufferedReader::new(io::File::open(p)).read_to_string();
+    match s {
+        Ok(x) => from_string(x.as_slice()),
+        Err(msg) => Err(format!("opening/reading file failed: {}", msg))
+    }
 }
 
 #[cfg(test)]
@@ -29,7 +41,7 @@ mod test {
 
     #[test]
     fn test_from_string() {
-        super::from_string(valid_cfg_json());
+        super::from_string(valid_cfg_json()).unwrap();
     }
 
     #[test]
@@ -44,6 +56,6 @@ mod test {
         tmp_out.write_str(valid_cfg_json()).unwrap();
         tmp_out.flush().unwrap();
 
-        super::from_file(&tmp_path);
+        super::from_file(&tmp_path).unwrap();
     }
 }
