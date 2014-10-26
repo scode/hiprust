@@ -7,9 +7,6 @@ pub struct Config {
     api_host: String,
 }
 
-// XXX(scode): I am not sure how one idiomatically propagates errors without leaking implementation
-// detail.
-
 #[must_use]
 fn from_string(s: &str) -> Result<Config, String> {
     let decoded = json::decode::<Config>(s);
