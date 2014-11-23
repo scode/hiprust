@@ -43,16 +43,16 @@ mod test {
 
     #[test]
     fn test_from_file() {
-        // XXX(scode): The hoop jumping to create tmp_path seems wrong and ugly.
         let tmp_dir = io::TempDir::new("jsontest").unwrap();
-        let mut tmp_path = Path::new(tmp_dir.path());
-        tmp_path.push("tmpcfg");
+        let mut cfg_path = tmp_dir.path().clone();
+        cfg_path.push("cfg");
 
-        let mut tmp_out = io::BufferedWriter::new(io::File::open_mode(&tmp_path, io::Open, io::Write)).unwrap();
+        let file = io::File::open_mode(&cfg_path, io::Open, io::Write).unwrap();
+        let mut cfg_out = io::BufferedWriter::new(file);
 
-        tmp_out.write_str(valid_cfg_json()).unwrap();
-        tmp_out.flush().unwrap();
+        cfg_out.write_str(valid_cfg_json()).unwrap();
+        cfg_out.flush().unwrap();
 
-        super::from_file(&tmp_path).unwrap();
+        super::from_file(&cfg_path).unwrap();
     }
 }
