@@ -1,6 +1,8 @@
 use serialize::json;
 use std::io;
 
+use ioutils;
+
 #[deriving(Decodable, Encodable)]
 pub struct Config {
     auth_token: String,
@@ -18,7 +20,7 @@ fn from_string(s: &str) -> Result<Config, String> {
 
 #[must_use]
 fn from_file(p: &Path) -> Result<Config, String> {
-    let s = io::BufferedReader::new(io::File::open(p)).read_to_string();
+    let s = ioutils::slurp_string(p);
     match s {
         Ok(x) => from_string(x.as_slice()),
         Err(msg) => Err(format!("opening/reading file failed: {}", msg))
@@ -28,6 +30,8 @@ fn from_file(p: &Path) -> Result<Config, String> {
 #[cfg(test)]
 mod test {
     use std::io;
+
+    use ioutils;
 
     fn valid_cfg_json() -> &'static str {
         "{\
@@ -47,11 +51,7 @@ mod test {
         let mut cfg_path = tmp_dir.path().clone();
         cfg_path.push("cfg");
 
-        let file = io::File::open_mode(&cfg_path, io::Open, io::Write).unwrap();
-        let mut cfg_out = io::BufferedWriter::new(file);
-
-        cfg_out.write_str(valid_cfg_json()).unwrap();
-        cfg_out.flush().unwrap();
+        ioutils::barf_string(&cfg_path, valid_cfg_json()).unwrap();
 
         super::from_file(&cfg_path).unwrap();
     }
