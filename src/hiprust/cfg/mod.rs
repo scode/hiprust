@@ -1,4 +1,5 @@
 use serialize::json;
+use std::error;
 use std::io;
 
 use ioutils;
@@ -9,21 +10,45 @@ pub struct Config {
     api_host: String,
 }
 
-#[must_use]
-fn from_string(s: &str) -> Result<Config, String> {
-    let decoded = json::decode::<Config>(s);
-    match decoded {
-        Ok(x) => Ok(x),
-        Err(msg) => Err(format!("decoding json failed: {}", msg))
+pub struct ConfigError {
+    desc: String,
+}
+
+impl ConfigError {
+    fn new(desc:String) -> ConfigError {
+        ConfigError { desc: desc }
+    }
+}
+
+impl error::Error for ConfigError {
+    fn description(&self) -> &str {
+        return self.desc.as_slice();
+    }
+
+    fn detail(&self) -> Option<String> {
+        None
+    }
+
+    fn cause(&self) -> Option<&error::Error> {
+        None
     }
 }
 
 #[must_use]
-fn from_file(p: &Path) -> Result<Config, String> {
+fn from_string(s: &str) -> Result<Config, ConfigError> {
+    let decoded = json::decode::<Config>(s);
+    match decoded {
+        Ok(x) => Ok(x),
+        Err(msg) => Err(ConfigError::new(format!("decoding json failed: {}", msg)))
+    }
+}
+
+#[must_use]
+fn from_file(p: &Path) -> Result<Config, ConfigError> {
     let s = ioutils::slurp_string(p);
     match s {
         Ok(x) => from_string(x.as_slice()),
-        Err(msg) => Err(format!("opening/reading file failed: {}", msg))
+        Err(msg) => Err(ConfigError::new(format!("opening/reading file failed: {}", msg)))
     }
 }
 
