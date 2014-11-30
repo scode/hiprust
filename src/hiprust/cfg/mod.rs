@@ -67,7 +67,7 @@ mod test {
 
     #[test]
     fn test_from_string() {
-        super::from_string(valid_cfg_json()).unwrap();
+        super::from_string(valid_cfg_json()).ok().unwrap();
     }
 
     #[test]
@@ -78,6 +78,6 @@ mod test {
 
         ioutils::barf_string(&cfg_path, valid_cfg_json()).unwrap();
 
-        super::from_file(&cfg_path).unwrap();
+        super::from_file(&cfg_path).ok().unwrap();
     }
 }
