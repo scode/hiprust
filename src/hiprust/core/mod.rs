@@ -9,7 +9,7 @@ pub struct Room {
 pub struct RoomHistory;
 
 pub trait RoomClient {
-    fn list_rooms(&self) -> iter::Iterator<Room>;
+    fn list_rooms(&self) -> Room;
     fn recent_history(&self, &Room) -> RoomHistory;
 }
 

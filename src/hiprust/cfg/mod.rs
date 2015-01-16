@@ -1,10 +1,10 @@
-use serialize::json;
+use rustc_serialize::json;
 use std::error;
 use std::io;
 
 use ioutils;
 
-#[deriving(Decodable, Encodable)]
+#[derive(RustcDecodable, RustcEncodable)]
 pub struct Config {
     auth_token: String,
     api_host: String,
@@ -39,7 +39,7 @@ fn from_string(s: &str) -> Result<Config, ConfigError> {
     let decoded = json::decode::<Config>(s);
     match decoded {
         Ok(x) => Ok(x),
-        Err(msg) => Err(ConfigError::new(format!("decoding json failed: {}", msg)))
+        Err(msg) => Err(ConfigError::new(format!("decoding json failed: {:?}", msg)))
     }
 }
 
@@ -48,7 +48,7 @@ fn from_file(p: &Path) -> Result<Config, ConfigError> {
     let s = ioutils::slurp_string(p);
     match s {
         Ok(x) => from_string(x.as_slice()),
-        Err(msg) => Err(ConfigError::new(format!("opening/reading file failed: {}", msg)))
+        Err(msg) => Err(ConfigError::new(format!("opening/reading file failed: {:?}", msg)))
     }
 }
 

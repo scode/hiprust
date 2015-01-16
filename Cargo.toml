@@ -8,6 +8,9 @@ authors = ["Peter Schuller <peter.schuller@infidyne.com>"]
 name = "hiprust"
 path = "src/hiprust/lib.rs"
 
+[dependencies]
+rustc-serialize = "0.2"
+
 [dependencies.http]
 
 git = "https://github.com/chris-morgan/rust-http"

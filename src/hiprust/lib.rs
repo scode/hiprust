@@ -1,4 +1,4 @@
-extern crate serialize;
+extern crate "rustc-serialize" as rustc_serialize;
 
 pub mod cfg;
 pub mod core;
